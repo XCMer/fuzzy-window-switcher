@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from gi.repository import Gtk, GdkPixbuf, Wnck
+from gi.repository import Gtk, GdkPixbuf, Wnck, AppIndicator3
 import time
 import re
 
@@ -123,10 +123,13 @@ class FuzzyWindow(Gtk.Window):
             self.windowList.rank(text)
             self.populate(self.windowList.get())
 
+        self.windowChosen(None)
+
     def windowChosen(self, data):
         highestRanked = self.windowList.getHighestRanked()
         if highestRanked is not None:
             highestRanked['window'].activate(time.time())
+            self.present()
 
 
 win = FuzzyWindow()
