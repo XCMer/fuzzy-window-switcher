@@ -1,0 +1,116 @@
+#!/usr/bin/python
+from gi.repository import Gtk, GdkPixbuf, Wnck
+from difflib import SequenceMatcher
+import time
+
+
+class WindowList():
+
+    def __init__(self):
+        self.windowList = []
+
+    def refresh(self):
+        # Get the screen and force update
+        screen = Wnck.Screen.get_default()
+        screen.force_update()
+
+        # Get a list of windows
+        window_list = screen.get_windows()
+        for i in window_list:
+            # Filter out extraneous windows
+            name = i.get_name()
+            if name in ['XdndCollectionWindowImp', 'unity-launcher', 'Desktop',
+                        'unity-panel', 'unity-dash', 'Hud', 'Guake!']:
+                continue
+            self.windowList.append({'name': name, 'icon': i.get_icon(), 'window': i, 'rank': 0})
+
+    def getLatest(self):
+        self.refresh()
+        return self.windowList
+
+    def get(self):
+        return self.windowList
+
+    def getHighestRanked(self):
+        if (len(self.windowList)):
+            return self.windowList[0]
+
+        return None
+
+    def rank(self, text):
+        for i in self.windowList:
+            i['rank'] = SequenceMatcher(None, text, i['name']).ratio()
+
+        self.windowList.sort(key=lambda x: x['rank'], reverse=True)
+
+
+class FuzzyWindow(Gtk.Window):
+
+    def __init__(self):
+        Gtk.Window.__init__(self, title='Fuzzy Windows')
+        # self.set_size_request(500, 600)
+
+        # Set up the vbox
+        self.vbox = Gtk.Box(spacing=10)
+        self.vbox.set_orientation(Gtk.Orientation.VERTICAL)
+        self.add(self.vbox)
+
+        # Set up the box to enter an app name
+        self.enteredName = Gtk.Entry()
+        self.vbox.pack_start(self.enteredName, True, True, 0)
+
+        # Create a store for data
+        self.appListStore = Gtk.ListStore(str, GdkPixbuf.Pixbuf)
+        # Create a view for the data
+        self.appListView = Gtk.TreeView(self.appListStore)
+
+        # Create the necessary columns
+        columnIcon = Gtk.TreeViewColumn("Icon")
+        cellIcon = Gtk.CellRendererPixbuf()
+        columnIcon.pack_start(cellIcon, False)
+        columnIcon.add_attribute(cellIcon, "pixbuf", 1)
+        self.appListView.append_column(columnIcon)
+
+        columnAppName = Gtk.TreeViewColumn("App Name")
+        cellAppName = Gtk.CellRendererText()
+        columnAppName.pack_start(cellAppName, False)
+        columnAppName.add_attribute(cellAppName, "text", 0)
+        self.appListView.append_column(columnAppName)
+
+        # Add the list box to the window
+        scrolledWindow = Gtk.ScrolledWindow()
+        scrolledWindow.set_size_request(700, 200)
+        scrolledWindow.add(self.appListView)
+        self.vbox.pack_start(scrolledWindow, True, True, 0)
+
+        # Initialize window list
+        self.windowList = WindowList()
+
+        # Register events
+        self.enteredName.connect("changed", self.enteredNameChanged)
+        self.enteredName.connect("activate", self.windowChosen)
+
+        # Populate initially
+        self.populate(self.windowList.getLatest())
+
+    def populate(self, items):
+        self.appListStore.clear()
+        for i in items:
+            self.appListStore.append([i['name'], i['icon']])
+
+    def enteredNameChanged(self, entry):
+        self.windowList.rank(entry.get_text())
+        self.populate(self.windowList.get())
+
+    def windowChosen(self, data):
+        highestRanked = self.windowList.getHighestRanked()
+        if highestRanked is not None:
+            highestRanked['window'].activate(time.time())
+
+
+win = FuzzyWindow()
+win.connect("delete-event", Gtk.main_quit)
+win.set_position(Gtk.WindowPosition.CENTER)
+win.show_all()
+win.set_keep_above(True)
+Gtk.main()
