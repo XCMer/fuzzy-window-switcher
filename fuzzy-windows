@@ -1,13 +1,30 @@
 #!/usr/bin/python
 from gi.repository import Gtk, GdkPixbuf, Wnck
-from difflib import SequenceMatcher
 import time
+import re
+
+
+class FuzzyMatcher():
+
+    def __init__(self):
+        self.pattern = ''
+
+    def setPattern(self, pattern):
+        self.pattern = '(.*?)'.join(map(re.escape, list(pattern)))
+
+    def score(self, string):
+        match = re.search(self.pattern, string)
+        if match is None:
+            return 0
+        else:
+            return 100.0 / ((1 + match.start()) * (match.end() - match.start() + 1))
 
 
 class WindowList():
 
     def __init__(self):
         self.windowList = []
+        self.fuzzyMatcher = FuzzyMatcher()
 
     def refresh(self):
         # Get the screen and force update
@@ -38,8 +55,10 @@ class WindowList():
         return None
 
     def rank(self, text):
+        self.fuzzyMatcher.setPattern(text)
         for i in self.windowList:
-            i['rank'] = SequenceMatcher(None, text, i['name']).ratio()
+            #i['rank'] = SequenceMatcher(None, text, i['name']).ratio()
+            i['rank'] = self.fuzzyMatcher.score(i['name'].lower())
 
         self.windowList.sort(key=lambda x: x['rank'], reverse=True)
 
@@ -99,8 +118,10 @@ class FuzzyWindow(Gtk.Window):
             self.appListStore.append([i['name'], i['icon']])
 
     def enteredNameChanged(self, entry):
-        self.windowList.rank(entry.get_text())
-        self.populate(self.windowList.get())
+        text = entry.get_text()
+        if text:
+            self.windowList.rank(text)
+            self.populate(self.windowList.get())
 
     def windowChosen(self, data):
         highestRanked = self.windowList.getHighestRanked()
