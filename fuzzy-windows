@@ -1,5 +1,9 @@
 #!/usr/bin/python
-from gi.repository import Gtk, GdkPixbuf, Wnck, AppIndicator3
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Keybinder', '3.0')
+
+from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder
 import time
 import re
 
@@ -67,7 +71,9 @@ class FuzzyWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title='Fuzzy Windows')
-        # self.set_size_request(500, 600)
+
+        # Window is initially hidden
+        self.hidden = False
 
         # Set up the vbox
         self.vbox = Gtk.Box(spacing=10)
@@ -131,10 +137,24 @@ class FuzzyWindow(Gtk.Window):
             highestRanked['window'].activate(time.time())
             self.present()
 
+    def toggle(self, key, data):
+        if self.hidden:
+            self.hidden = False
+            self.set_keep_above(True)
+            self.present()
+            self.set_accept_focus()
+        else:
+            self.hidden = True
+            self.hide()
+
 
 win = FuzzyWindow()
 win.connect("delete-event", Gtk.main_quit)
 win.set_position(Gtk.WindowPosition.CENTER)
 win.show_all()
 win.set_keep_above(True)
+
+Keybinder.init()
+Keybinder.bind("<Ctrl>A", win.toggle, None)
+
 Gtk.main()
