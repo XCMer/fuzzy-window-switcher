@@ -14,10 +14,10 @@ class FuzzyMatcher():
         self.pattern = ''
 
     def setPattern(self, pattern):
-        self.pattern = '(.*?)'.join(map(re.escape, list(pattern)))
+        self.pattern = re.compile('.*?'.join(map(re.escape, list(pattern))))
 
     def score(self, string):
-        match = re.search(self.pattern, string)
+        match = self.pattern.search(string)
         if match is None:
             return 0
         else:
