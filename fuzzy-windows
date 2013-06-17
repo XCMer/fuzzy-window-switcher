@@ -3,7 +3,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
 
-from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder
+from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder, Gdk
 import time
 import re
 
@@ -28,12 +28,19 @@ class WindowList():
 
     def __init__(self):
         self.windowList = []
+        self.previousWindow = None
         self.fuzzyMatcher = FuzzyMatcher()
 
     def refresh(self):
+        # Clear existing
+        self.windowList = []
+
         # Get the screen and force update
         screen = Wnck.Screen.get_default()
         screen.force_update()
+
+        # Get previous active window
+        self.previousWindow = screen.get_active_window()
 
         # Get a list of windows
         window_list = screen.get_windows()
@@ -61,10 +68,12 @@ class WindowList():
     def rank(self, text):
         self.fuzzyMatcher.setPattern(text)
         for i in self.windowList:
-            #i['rank'] = SequenceMatcher(None, text, i['name']).ratio()
             i['rank'] = self.fuzzyMatcher.score(i['name'].lower())
 
         self.windowList.sort(key=lambda x: x['rank'], reverse=True)
+
+    def getPreviousWindow(self):
+        return self.previousWindow
 
 
 class FuzzyWindow(Gtk.Window):
@@ -113,7 +122,8 @@ class FuzzyWindow(Gtk.Window):
 
         # Register events
         self.enteredName.connect("changed", self.enteredNameChanged)
-        self.enteredName.connect("activate", self.windowChosen)
+        # self.enteredName.connect("activate", self.windowChosen)
+        self.connect("key-press-event", self.keypress)
 
         # Populate initially
         self.populate(self.windowList.getLatest())
@@ -137,12 +147,29 @@ class FuzzyWindow(Gtk.Window):
             highestRanked['window'].activate(time.time())
             self.present()
 
+    def windowRejected(self):
+        previousWindow = self.windowList.getPreviousWindow()
+        if previousWindow is not None:
+            previousWindow.activate(time.time())
+            self.toggle(None, None)
+
+    def keypress(self, widget, event):
+        if event.keyval == Gdk.KEY_Escape:
+            self.windowRejected()
+        elif event.keyval == Gdk.KEY_Return:
+            self.windowChosen(None)
+            self.toggle(None, None)
+
     def toggle(self, key, data):
         if self.hidden:
             self.hidden = False
+            self.enteredName.set_text('')
             self.set_keep_above(True)
+            self.set_accept_focus(True)
             self.present()
-            self.set_accept_focus()
+            self.enteredName.grab_focus()
+            self.windowList.refresh()
+            self.populate(self.windowList.get())
         else:
             self.hidden = True
             self.hide()
@@ -155,6 +182,6 @@ win.show_all()
 win.set_keep_above(True)
 
 Keybinder.init()
-Keybinder.bind("<Ctrl>A", win.toggle, None)
+Keybinder.bind("F11", win.toggle, None)
 
 Gtk.main()
