@@ -24,14 +24,14 @@ Apart from this, you can also double-click on any window to open it.
 
 The default hotkey is `F11`. You can change this by creating a `.fuzzy-windows` file in your home directory. The contents would be something like:
 
-    [Default]
+    [DEFAULT]
     hotkey=F10
 
 Certain windows are ignored and not shown to you, because they're common system specific ones. The default ones ignored are: 'XdndCollectionWindowImp', 'unity-launcher', 'Desktop', 'unity-panel', 'unity-dash', 'Hud', 'Guake!'
 
 You can, however, override this as:
 
-    [Default]
+    [DEFAULT]
     hotkey=F10
     ignored_windows=
         unity-panel
