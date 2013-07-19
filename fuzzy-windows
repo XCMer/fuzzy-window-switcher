@@ -186,6 +186,7 @@ win.connect("delete-event", Gtk.main_quit)
 win.set_position(Gtk.WindowPosition.CENTER)
 win.show_all()
 win.set_keep_above(True)
+win.set_skip_taskbar_hint(True)
 
 Keybinder.init()
 Keybinder.bind("F11", win.hotkey, None)
