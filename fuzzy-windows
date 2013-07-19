@@ -122,7 +122,6 @@ class FuzzyWindow(Gtk.Window):
 
         # Register events
         self.enteredName.connect("changed", self.enteredNameChanged)
-        # self.enteredName.connect("activate", self.windowChosen)
         self.connect("key-press-event", self.keypress)
 
         # Populate initially
@@ -139,40 +138,36 @@ class FuzzyWindow(Gtk.Window):
             self.windowList.rank(text)
             self.populate(self.windowList.get())
 
-        self.windowChosen(None)
-
-    def windowChosen(self, data):
+    def presentHighestRanked(self):
         highestRanked = self.windowList.getHighestRanked()
         if highestRanked is not None:
             highestRanked['window'].activate(time.time())
             self.present()
 
-    def windowRejected(self):
-        previousWindow = self.windowList.getPreviousWindow()
-        if previousWindow is not None:
-            previousWindow.activate(time.time())
-            self.toggle(None, None)
-
     def keypress(self, widget, event):
         if event.keyval == Gdk.KEY_Escape:
-            self.windowRejected()
+            self.toggle()
         elif event.keyval == Gdk.KEY_Return:
-            self.windowChosen(None)
-            self.toggle(None, None)
+            self.presentHighestRanked()
+            self.toggle()
 
-    def toggle(self, key, data):
+    def toggle(self):
         if self.hidden:
             self.hidden = False
             self.enteredName.set_text('')
             self.set_keep_above(True)
             self.set_accept_focus(True)
-            self.present()
             self.enteredName.grab_focus()
             self.windowList.refresh()
             self.populate(self.windowList.get())
+            self.present()
+            self.set_accept_focus(True)
         else:
             self.hidden = True
             self.hide()
+
+    def hotkey(self, key, data):
+        self.toggle()
 
 
 win = FuzzyWindow()
@@ -182,6 +177,6 @@ win.show_all()
 win.set_keep_above(True)
 
 Keybinder.init()
-Keybinder.bind("F11", win.toggle, None)
+Keybinder.bind("F11", win.hotkey, None)
 
 Gtk.main()
