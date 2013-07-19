@@ -18,6 +18,8 @@ After the application has started running (you can run it on startup), just pres
 
 The hotkey is configurable (see the config section).
 
+Apart from this, you can also double-click on any window to open it.
+
 ## Configuration
 
 The default hotkey is `F11`. You can change this by creating a `.fuzzy-windows` file in your home directory. The contents would be something like:
@@ -39,4 +41,4 @@ Notice that the list is newline separated.
 
 ## TODOs
 
-I'll be adding the option to manually select a window from the list soon.
+Still thinking. Your suggestions are welcome. Just open a new issue here on GitHub.
