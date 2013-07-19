@@ -181,10 +181,7 @@ class FuzzyWindow(Gtk.Window):
             # Show our window with focus
             self.stick()
 
-            try:
-                time = GdkX11.x11_get_server_time(self.get_window())
-            except:
-                time = 0
+            time = self.getXTime()
 
             self.get_window().show()
             self.get_window().focus(time)
@@ -194,6 +191,14 @@ class FuzzyWindow(Gtk.Window):
 
     def hotkey(self, key, data):
         self.toggle()
+
+    def getXTime(self):
+        try:
+            time = GdkX11.x11_get_server_time(self.get_window())
+        except:
+            time = 0
+
+        return time
 
 # Load the configuration with defaults
 config = ConfigParser.ConfigParser()
