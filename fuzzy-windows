@@ -4,7 +4,6 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
 
 from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder, Gdk, GdkX11
-import time
 import re
 import ConfigParser
 import os
@@ -144,7 +143,7 @@ class FuzzyWindow(Gtk.Window):
     def presentHighestRanked(self):
         highestRanked = self.windowList.getHighestRanked()
         if highestRanked is not None:
-            highestRanked['window'].activate(time.time())
+            highestRanked['window'].activate(self.getXTime())
 
     def presentManual(self, view, path, column):
         indices = path.get_indices()
@@ -154,7 +153,7 @@ class FuzzyWindow(Gtk.Window):
         index = indices[0]
         windows = self.windowList.get()
         if index < len(windows):
-            windows[index]['window'].activate(time.time())
+            windows[index]['window'].activate(self.getXTime())
             self.toggle()
 
     def keypress(self, widget, event):
