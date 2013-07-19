@@ -84,7 +84,7 @@ class FuzzyWindow(Gtk.Window):
         Gtk.Window.__init__(self, title='Fuzzy Windows')
 
         # Window is initially hidden
-        self.hidden = False
+        self.hidden = True
 
         # Set up the vbox
         self.vbox = Gtk.Box(spacing=10)
@@ -156,6 +156,7 @@ class FuzzyWindow(Gtk.Window):
         if self.hidden:
             # Set state
             self.hidden = False
+            self.show_all()
 
             # Clear out the text field
             self.enteredName.set_text('')
@@ -199,7 +200,6 @@ if (type(config.get('Default', 'ignored_windows')) is str):
 win = FuzzyWindow(config)
 win.connect("delete-event", Gtk.main_quit)
 win.set_position(Gtk.WindowPosition.CENTER)
-win.show_all()
 win.set_keep_above(True)
 win.set_skip_taskbar_hint(True)
 
