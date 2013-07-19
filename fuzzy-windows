@@ -142,7 +142,6 @@ class FuzzyWindow(Gtk.Window):
         highestRanked = self.windowList.getHighestRanked()
         if highestRanked is not None:
             highestRanked['window'].activate(time.time())
-            self.present()
 
     def keypress(self, widget, event):
         if event.keyval == Gdk.KEY_Escape:
