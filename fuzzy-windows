@@ -125,6 +125,7 @@ class FuzzyWindow(Gtk.Window):
         # Register events
         self.enteredName.connect("changed", self.enteredNameChanged)
         self.connect("key-press-event", self.keypress)
+        self.appListView.connect("row-activated", self.presentManual)
 
         # Populate initially
         self.populate(self.windowList.getLatest())
@@ -144,6 +145,17 @@ class FuzzyWindow(Gtk.Window):
         highestRanked = self.windowList.getHighestRanked()
         if highestRanked is not None:
             highestRanked['window'].activate(time.time())
+
+    def presentManual(self, view, path, column):
+        indices = path.get_indices()
+        if len(indices) < 1:
+            return
+
+        index = indices[0]
+        windows = self.windowList.get()
+        if index < len(windows):
+            windows[index]['window'].activate(time.time())
+            self.toggle()
 
     def keypress(self, widget, event):
         if event.keyval == Gdk.KEY_Escape:
