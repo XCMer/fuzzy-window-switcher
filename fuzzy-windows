@@ -140,10 +140,17 @@ class FuzzyWindow(Gtk.Window):
             self.windowList.rank(text)
             self.populate(self.windowList.get())
 
+    def presentWindow(self, window):
+        workspace = window.get_workspace()
+        if workspace is not None:
+            workspace.activate(self.getXTime())
+
+        window.activate(self.getXTime())
+
     def presentHighestRanked(self):
         highestRanked = self.windowList.getHighestRanked()
         if highestRanked is not None:
-            highestRanked['window'].activate(self.getXTime())
+            self.presentWindow(highestRanked['window'])
 
     def presentManual(self, view, path, column):
         indices = path.get_indices()
@@ -153,15 +160,15 @@ class FuzzyWindow(Gtk.Window):
         index = indices[0]
         windows = self.windowList.get()
         if index < len(windows):
-            windows[index]['window'].activate(self.getXTime())
             self.toggle()
+            self.presentWindow(windows[index]['window'])
 
     def keypress(self, widget, event):
         if event.keyval == Gdk.KEY_Escape:
             self.toggle()
         elif event.keyval == Gdk.KEY_Return:
-            self.presentHighestRanked()
             self.toggle()
+            self.presentHighestRanked()
 
     def toggle(self):
         if self.hidden:
