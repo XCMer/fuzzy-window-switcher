@@ -14,7 +14,7 @@ The application needs KeyBinder 3 installed, which you can install using your di
 
 ## Usage
 
-After the application has started running (you can run it on startup), just press the hotkey  (`F11` by default) to show the list of applications currently open. Start typing some letters, and the most relevant window will rise to the top. Clicking `Enter` would now switch focus to that window. You can press `ESC` to cancel the operation and hide the `Fuzzy Windows` window again.
+After the application has started running (you can run it on startup), just press the hotkey  (`F10` by default) to show the list of applications currently open. Start typing some letters, and the most relevant window will rise to the top. Clicking `Enter` would now switch focus to that window. You can press `ESC` to cancel the operation and hide the `Fuzzy Windows` window again.
 
 The hotkey is configurable (see the config section).
 
@@ -22,10 +22,10 @@ Apart from this, you can also double-click on any window to open it.
 
 ## Configuration
 
-The default hotkey is `F11`. You can change this by creating a `.fuzzy-windows` file in your home directory. The contents would be something like:
+The default hotkey is `F10`. You can change this by creating a `.fuzzy-windows` file in your home directory. The contents would be something like:
 
     [DEFAULT]
-    hotkey=F10
+    hotkey=F9
 
 Certain windows are ignored and not shown to you, because they're common system specific ones. The default ones ignored are: 'XdndCollectionWindowImp', 'unity-launcher', 'Desktop', 'unity-panel', 'unity-dash', 'Hud', 'Guake!'
 
