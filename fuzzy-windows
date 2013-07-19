@@ -3,7 +3,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
 
-from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder, Gdk
+from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder, Gdk, GdkX11
 import time
 import re
 
@@ -153,18 +153,30 @@ class FuzzyWindow(Gtk.Window):
 
     def toggle(self):
         if self.hidden:
+            # Set state
             self.hidden = False
+
+            # Clear out the text field
             self.enteredName.set_text('')
-            self.set_keep_above(True)
-            self.set_accept_focus(True)
             self.enteredName.grab_focus()
+
+            # Populate windows
             self.windowList.refresh()
             self.populate(self.windowList.get())
-            self.present()
-            self.set_accept_focus(True)
+
+            # Show our window with focus
+            self.stick()
+
+            try:
+                time = GdkX11.x11_get_server_time(self.get_window())
+            except:
+                time = 0
+
+            self.get_window().show()
+            self.get_window().focus(time)
         else:
             self.hidden = True
-            self.hide()
+            self.get_window().hide()
 
     def hotkey(self, key, data):
         self.toggle()
