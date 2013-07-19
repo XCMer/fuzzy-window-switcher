@@ -120,7 +120,7 @@ class FuzzyWindow(Gtk.Window):
         self.vbox.pack_start(scrolledWindow, True, True, 0)
 
         # Initialize window list
-        self.windowList = WindowList(config.get('Default', 'ignored_windows'))
+        self.windowList = WindowList(config.get('DEFAULT', 'ignored_windows'))
 
         # Register events
         self.enteredName.connect("changed", self.enteredNameChanged)
@@ -195,18 +195,18 @@ class FuzzyWindow(Gtk.Window):
     def hotkey(self, key, data):
         self.toggle()
 
-# Load the configuration
-config = ConfigParser.ConfigParser({
-    'hotkey': 'F11',
-    'ignored_windows': ['XdndCollectionWindowImp', 'unity-launcher', 'Desktop',
-                        'unity-panel', 'unity-dash', 'Hud', 'Guake!']
-})
+# Load the configuration with defaults
+config = ConfigParser.ConfigParser()
+config.set('DEFAULT', 'hotkey', 'F10')
+config.set('DEFAULT', 'ignored_windows',
+           ['XdndCollectionWindowImp', 'unity-launcher', 'Desktop',
+           'unity-panel', 'unity-dash', 'Hud', 'Guake!'])
 config.read(os.path.expanduser('~/.fuzzy-windows'))
 
 # Tackle the window list by turning it into a list if its a string
-if (type(config.get('Default', 'ignored_windows')) is str):
-    val = config.get('Default', 'ignored_windows')
-    config.set('Default', 'ignored_windows', filter(None, val.split("\n")))
+if (type(config.get('DEFAULT', 'ignored_windows')) is str):
+    val = config.get('DEFAULT', 'ignored_windows')
+    config.set('DEFAULT', 'ignored_windows', filter(None, val.split("\n")))
 
 # Create the window and set attributes
 win = FuzzyWindow(config)
@@ -217,7 +217,7 @@ win.set_skip_taskbar_hint(True)
 
 # Set the hotkey
 Keybinder.init()
-Keybinder.bind(config.get('Default', 'hotkey'), win.hotkey, None)
+Keybinder.bind(config.get('DEFAULT', 'hotkey'), win.hotkey, None)
 
 # The main loop
 Gtk.main()
