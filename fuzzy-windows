@@ -21,7 +21,7 @@ class FuzzyMatcher():
         if match is None:
             return 0
         else:
-            return 100.0 / ((1 + match.start()) * (match.end() - match.start() + 1))
+            return 100.0 * (1.0/(1 + match.start()) + 1.2/(match.end() - match.start() + 1))
 
 
 class WindowList():
