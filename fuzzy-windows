@@ -228,7 +228,9 @@ win.set_skip_taskbar_hint(True)
 
 # Set the hotkey
 Keybinder.init()
-Keybinder.bind(config.get('DEFAULT', 'hotkey'), win.hotkey, None)
+if not Keybinder.bind(config.get('DEFAULT', 'hotkey'), win.hotkey, None):
+    print "Could not bind the hotkey:", config.get('DEFAULT', 'hotkey')
+    exit()
 
 # The main loop
 Gtk.main()
