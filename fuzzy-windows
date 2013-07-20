@@ -49,8 +49,14 @@ class WindowList():
         for i in window_list:
             # Filter out extraneous windows
             name = i.get_name()
+            window_type = i.get_window_type()
+
+            if window_type == Wnck.WindowType.DOCK:
+                continue
+
             if name in self.ignored_windows:
                 continue
+
             self.windowList.append({'name': name, 'icon': i.get_icon(), 'window': i, 'rank': 0})
 
     def getLatest(self):
@@ -210,8 +216,7 @@ class FuzzyWindow(Gtk.Window):
 config = ConfigParser.ConfigParser()
 config.set('DEFAULT', 'hotkey', 'F10')
 config.set('DEFAULT', 'ignored_windows',
-           ['XdndCollectionWindowImp', 'unity-launcher', 'Desktop',
-           'unity-panel', 'unity-dash', 'Hud', 'Guake!'])
+           [''])
 config.read(os.path.expanduser('~/.fuzzy-windows'))
 
 # Tackle the window list by turning it into a list if its a string
