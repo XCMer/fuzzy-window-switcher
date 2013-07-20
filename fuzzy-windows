@@ -217,7 +217,12 @@ config = ConfigParser.ConfigParser()
 config.set('DEFAULT', 'hotkey', 'F10')
 config.set('DEFAULT', 'ignored_windows',
            [''])
-config.read(os.path.expanduser('~/.fuzzy-windows'))
+config.read([
+    os.path.expanduser('~/.config/fuzzy-windows.conf'),
+    os.path.expanduser('~/.config/.fuzzy-windows'),
+    os.path.expanduser('~/fuzzy-windows.conf'),
+    os.path.expanduser('~/.fuzzy-windows')
+])
 
 # Tackle the window list by turning it into a list if its a string
 if (type(config.get('DEFAULT', 'ignored_windows')) is str):
