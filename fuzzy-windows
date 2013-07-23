@@ -173,9 +173,10 @@ class FuzzyWindow(Gtk.Window):
             self.presentWindow(windows[index]['window'])
 
     def keypress(self, widget, event):
+        selected = self.appListView.get_selection().get_selected()
         if event.keyval == Gdk.KEY_Escape:
             self.toggle()
-        elif event.keyval == Gdk.KEY_Return:
+        elif event.keyval == Gdk.KEY_Return and selected[1] == None:
             self.toggle()
             self.presentHighestRanked()
 
