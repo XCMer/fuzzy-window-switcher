@@ -239,23 +239,26 @@ class Config:
 
     def loadOptions(self):
         self.hotkey = self.getOption('hotkey', 'F10')
-        self.ignored_windows = self.getOption('ignored_windows', [])
+        self.ignored_windows = self.prepareIgnoredWindows(self.getOption('ignored_windows', []))
         self.width = int(self.getOption('width', 700))
         self.height = int(self.getOption('height', 200))
-
-        # Turn ignored windows into a list
-        if type(self.ignored_windows) is str:
-            self.ignored_windows = filter(None, self.ignored_windows.split("\n"))
-
-        # Now, turn each of the window names into a regex pattern
-        for i in range(0, len(self.ignored_windows)):
-            self.ignored_windows[i] = re.compile(self.ignored_windows[i])
 
     def getOption(self, option_name, default_value):
         if self.config.has_option('DEFAULT', option_name):
             return self.config.get('DEFAULT', option_name)
         else:
             return default_value
+
+    def prepareIgnoredWindows(self, ignored_windows):
+        # Turn ignored windows into a list
+        if type(ignored_windows) is str:
+            ignored_windows = filter(None, ignored_windows.split("\n"))
+
+        # Now, turn each of the window names into a regex pattern
+        for i in range(0, len(ignored_windows)):
+            ignored_windows[i] = re.compile(ignored_windows[i])
+
+        return ignored_windows
 
 
 # Load the configuration with defaults
