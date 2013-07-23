@@ -176,7 +176,7 @@ class FuzzyWindow(Gtk.Window):
         selected = self.appListView.get_selection().get_selected()
         if event.keyval == Gdk.KEY_Escape:
             self.toggle()
-        elif event.keyval == Gdk.KEY_Return and selected[1] == None:
+        elif event.keyval == Gdk.KEY_Return and selected[1] is None:
             self.toggle()
             self.presentHighestRanked()
 
