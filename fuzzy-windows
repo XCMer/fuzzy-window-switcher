@@ -121,14 +121,14 @@ class FuzzyWindow(Gtk.Window):
         # Add the list box to the window
         scrolledWindow = Gtk.ScrolledWindow()
         scrolledWindow.set_size_request(
-            int(config.get('DEFAULT', 'width')),
-            int(config.get('DEFAULT', 'height'))
+            config.width,
+            config.height
         )
         scrolledWindow.add(self.appListView)
         self.vbox.pack_start(scrolledWindow, True, True, 0)
 
         # Initialize window list
-        self.windowList = WindowList(config.get('DEFAULT', 'ignored_windows'))
+        self.windowList = WindowList(config.ignored_windows)
 
         # Register events
         self.enteredName.connect("changed", self.enteredNameChanged)
@@ -216,25 +216,38 @@ class FuzzyWindow(Gtk.Window):
 
         return time
 
+
+class Config:
+
+    def __init__(self):
+        self.config = ConfigParser.ConfigParser()
+        self.config.read([
+            os.path.expanduser('~/.config/fuzzy-windows.conf'),
+            os.path.expanduser('~/.config/.fuzzy-windows'),
+            os.path.expanduser('~/fuzzy-windows.conf'),
+            os.path.expanduser('~/.fuzzy-windows')
+        ])
+
+        self.loadOptions()
+
+    def loadOptions(self):
+        self.hotkey = self.getOption('hotkey', 'F10')
+        self.ignored_windows = self.getOption('ignored_windows', [])
+        self.width = int(self.getOption('width', 700))
+        self.height = int(self.getOption('height', 200))
+
+        if self.ignored_windows is str:
+            self.ignored_windows = filter(None, self.ignored_windows.split("\n"))
+
+    def getOption(self, option_name, default_value):
+        if self.config.has_option('DEFAULT', option_name):
+            return self.config.get('DEFAULT', option_name)
+        else:
+            return default_value
+
+
 # Load the configuration with defaults
-config = ConfigParser.ConfigParser()
-config.set('DEFAULT', 'hotkey', 'F10')
-config.set('DEFAULT', 'ignored_windows',
-           [''])
-config.set('DEFAULT', 'width', '700')
-config.set('DEFAULT', 'height', '200')
-
-config.read([
-    os.path.expanduser('~/.config/fuzzy-windows.conf'),
-    os.path.expanduser('~/.config/.fuzzy-windows'),
-    os.path.expanduser('~/fuzzy-windows.conf'),
-    os.path.expanduser('~/.fuzzy-windows')
-])
-
-# Tackle the window list by turning it into a list if its a string
-if (type(config.get('DEFAULT', 'ignored_windows')) is str):
-    val = config.get('DEFAULT', 'ignored_windows')
-    config.set('DEFAULT', 'ignored_windows', filter(None, val.split("\n")))
+config = Config()
 
 # Create the window and set attributes
 win = FuzzyWindow(config)
@@ -245,8 +258,8 @@ win.set_skip_taskbar_hint(True)
 
 # Set the hotkey
 Keybinder.init()
-if not Keybinder.bind(config.get('DEFAULT', 'hotkey'), win.hotkey, None):
-    print "Could not bind the hotkey:", config.get('DEFAULT', 'hotkey')
+if not Keybinder.bind(config.hotkey, win.hotkey, None):
+    print "Could not bind the hotkey:", config.hotkey
     exit()
 
 # The main loop
