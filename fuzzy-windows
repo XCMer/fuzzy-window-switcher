@@ -54,7 +54,7 @@ class WindowList():
             if window_type == Wnck.WindowType.DOCK:
                 continue
 
-            if name in self.ignored_windows:
+            if self.isWindowIgnored(name):
                 continue
 
             self.windowList.append({'name': name, 'icon': i.get_icon(), 'window': i, 'rank': 0})
@@ -81,6 +81,13 @@ class WindowList():
 
     def getPreviousWindow(self):
         return self.previousWindow
+
+    def isWindowIgnored(self, window_title):
+        for pattern in self.ignored_windows:
+            if pattern.search(window_title) is not None:
+                return True
+
+        return False
 
 
 class FuzzyWindow(Gtk.Window):
@@ -236,8 +243,13 @@ class Config:
         self.width = int(self.getOption('width', 700))
         self.height = int(self.getOption('height', 200))
 
-        if self.ignored_windows is str:
+        # Turn ignored windows into a list
+        if type(self.ignored_windows) is str:
             self.ignored_windows = filter(None, self.ignored_windows.split("\n"))
+
+        # Now, turn each of the window names into a regex pattern
+        for i in range(0, len(self.ignored_windows)):
+            self.ignored_windows[i] = re.compile(self.ignored_windows[i])
 
     def getOption(self, option_name, default_value):
         if self.config.has_option('DEFAULT', option_name):
