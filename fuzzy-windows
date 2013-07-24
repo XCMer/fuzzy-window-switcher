@@ -27,11 +27,12 @@ class FuzzyMatcher():
 
 class WindowList():
 
-    def __init__(self, ignored_windows, ignored_window_types):
+    def __init__(self, ignored_windows, always_show_windows, ignored_window_types):
         self.windowList = []
         self.previousWindow = None
         self.fuzzyMatcher = FuzzyMatcher()
         self.ignored_windows = ignored_windows
+        self.always_show_windows = always_show_windows
         self.ignored_window_types = ignored_window_types
 
     def refresh(self):
@@ -52,11 +53,14 @@ class WindowList():
             name = i.get_name()
             window_type = i.get_window_type()
 
-            if window_type in self.ignored_window_types:
-                continue
+            if self.isWindowAlwaysShown(name):
+                pass
+            else:
+                if window_type in self.ignored_window_types:
+                    continue
 
-            if self.isWindowIgnored(name):
-                continue
+                if self.isWindowIgnored(name):
+                    continue
 
             self.windowList.append({'name': name, 'icon': i.get_icon(), 'window': i, 'rank': 0})
 
@@ -85,6 +89,13 @@ class WindowList():
 
     def isWindowIgnored(self, window_title):
         for pattern in self.ignored_windows:
+            if pattern.search(window_title) is not None:
+                return True
+
+        return False
+
+    def isWindowAlwaysShown(self, window_title):
+        for pattern in self.always_show_windows:
             if pattern.search(window_title) is not None:
                 return True
 
@@ -136,7 +147,11 @@ class FuzzyWindow(Gtk.Window):
         self.vbox.pack_start(scrolledWindow, True, True, 0)
 
         # Initialize window list
-        self.windowList = WindowList(config.ignored_windows, config.ignored_window_types)
+        self.windowList = WindowList(
+            config.ignored_windows,
+            config.always_show_windows,
+            config.ignored_window_types
+        )
 
         # Register events
         self.enteredName.connect("changed", self.enteredNameChanged)
@@ -240,7 +255,12 @@ class Config:
 
     def loadOptions(self):
         self.hotkey = self.getOption('hotkey', 'F10')
-        self.ignored_windows = self.prepareIgnoredWindows(self.getOption('ignored_windows', []))
+        self.ignored_windows = self.prepareIgnoredWindows(
+            self.getOption('ignored_windows', [])
+        )
+        self.always_show_windows = self.prepareAlwaysShowWindows(
+            self.getOption('always_show_windows', [])
+        )
         self.width = int(self.getOption('width', 700))
         self.height = int(self.getOption('height', 200))
         self.ignored_window_types = self.getIgnoredWindowTypes()
@@ -252,15 +272,21 @@ class Config:
             return default_value
 
     def prepareIgnoredWindows(self, ignored_windows):
-        # Turn ignored windows into a list
-        if type(ignored_windows) is str:
-            ignored_windows = filter(None, ignored_windows.split("\n"))
+        return self.splitAndCompileWindowRegexes(ignored_windows)
+
+    def prepareAlwaysShowWindows(self, always_show_windows):
+        return self.splitAndCompileWindowRegexes(always_show_windows)
+
+    def splitAndCompileWindowRegexes(self, windows):
+        # Turn window str into a list
+        if type(windows) is str:
+            windows = filter(None, windows.split("\n"))
 
         # Now, turn each of the window names into a regex pattern
-        for i in range(0, len(ignored_windows)):
-            ignored_windows[i] = re.compile(ignored_windows[i])
+        for i in range(0, len(windows)):
+            windows[i] = re.compile(windows[i])
 
-        return ignored_windows
+        return windows
 
     def getIgnoredWindowTypes(self):
         window_types = {
@@ -278,7 +304,6 @@ class Config:
 
         for window_type in window_types:
             should_show = bool(int(self.getOption('show_windows_' + window_type, True)))
-            print window_type, should_show
             if not should_show:
                 ignored_window_types.append(window_types[window_type]['window_type'])
 
