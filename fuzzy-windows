@@ -27,11 +27,12 @@ class FuzzyMatcher():
 
 class WindowList():
 
-    def __init__(self, ignored_windows):
+    def __init__(self, ignored_windows, ignored_window_types):
         self.windowList = []
         self.previousWindow = None
         self.fuzzyMatcher = FuzzyMatcher()
         self.ignored_windows = ignored_windows
+        self.ignored_window_types = ignored_window_types
 
     def refresh(self):
         # Clear existing
@@ -51,7 +52,7 @@ class WindowList():
             name = i.get_name()
             window_type = i.get_window_type()
 
-            if window_type == Wnck.WindowType.DOCK:
+            if window_type in self.ignored_window_types:
                 continue
 
             if self.isWindowIgnored(name):
@@ -135,7 +136,7 @@ class FuzzyWindow(Gtk.Window):
         self.vbox.pack_start(scrolledWindow, True, True, 0)
 
         # Initialize window list
-        self.windowList = WindowList(config.ignored_windows)
+        self.windowList = WindowList(config.ignored_windows, config.ignored_window_types)
 
         # Register events
         self.enteredName.connect("changed", self.enteredNameChanged)
@@ -242,6 +243,7 @@ class Config:
         self.ignored_windows = self.prepareIgnoredWindows(self.getOption('ignored_windows', []))
         self.width = int(self.getOption('width', 700))
         self.height = int(self.getOption('height', 200))
+        self.ignored_window_types = self.getIgnoredWindowTypes()
 
     def getOption(self, option_name, default_value):
         if self.config.has_option('DEFAULT', option_name):
@@ -259,6 +261,28 @@ class Config:
             ignored_windows[i] = re.compile(ignored_windows[i])
 
         return ignored_windows
+
+    def getIgnoredWindowTypes(self):
+        window_types = {
+            'normal': {'window_type': Wnck.WindowType.NORMAL},
+            'desktop': {'window_type': Wnck.WindowType.DESKTOP},
+            'dock': {'window_type': Wnck.WindowType.DOCK},
+            'dialog': {'window_type': Wnck.WindowType.DIALOG},
+            'toolbar': {'window_type': Wnck.WindowType.TOOLBAR},
+            'menu': {'window_type': Wnck.WindowType.MENU},
+            'utility': {'window_type': Wnck.WindowType.UTILITY},
+            'splashscreen': {'window_type': Wnck.WindowType.SPLASHSCREEN},
+        }
+
+        ignored_window_types = []
+
+        for window_type in window_types:
+            should_show = bool(int(self.getOption('show_windows_' + window_type, True)))
+            print window_type, should_show
+            if not should_show:
+                ignored_window_types.append(window_types[window_type]['window_type'])
+
+        return ignored_window_types
 
 
 # Load the configuration with defaults
