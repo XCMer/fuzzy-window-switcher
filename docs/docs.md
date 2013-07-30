@@ -105,6 +105,13 @@ Or if you want to use the Control key, for example:
 hotkey=<Ctrl>w
 ```
 
+Or the scroll lock:
+
+```
+[DEFAULT]
+hotkey=Scroll_Lock
+```
+
 ### 2. Ignored Window Titles
 
 There may be some system-specific windows that you might not want to show up on the list of windows. You can specify this by specifying regexes of the window titles that should be ignored as follows:
