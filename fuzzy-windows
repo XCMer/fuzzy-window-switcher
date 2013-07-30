@@ -123,6 +123,7 @@ class FuzzyWindow(Gtk.Window):
         self.appListStore = Gtk.ListStore(str, GdkPixbuf.Pixbuf)
         # Create a view for the data
         self.appListView = Gtk.TreeView(self.appListStore)
+        self.appListView.set_headers_visible(False)
 
         # Create the necessary columns
         columnIcon = Gtk.TreeViewColumn("Icon")
