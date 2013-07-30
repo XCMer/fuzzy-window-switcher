@@ -4,6 +4,8 @@ Fuzzy Windows is a window switcher for GTK. It can be activated via a hotkey, up
 
 ![Fuzzy Windows](images/fw.png)
 
+To quit Fuzzy Windows, hit `Alt+F4`.
+
 ## Feature Enhancements & Bugs
 
 If you have a suggestion or have found a bug, please use GitHub's issue tracker to report it.
