@@ -320,6 +320,7 @@ win.connect("delete-event", Gtk.main_quit)
 win.set_position(Gtk.WindowPosition.CENTER)
 win.set_keep_above(True)
 win.set_skip_taskbar_hint(True)
+win.set_decorated(False)
 
 # Set the hotkey
 Keybinder.init()
