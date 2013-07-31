@@ -4,6 +4,10 @@ A fuzzy window switcher for Ubuntu (GTK based, so should work in other distros t
 
 ![Fuzzy Windows](docs/images/fw.png)
 
+## Latest Release
+
+Please download the latest release from the **Releases** tab on GitHub.
+
 ## Documentation
 
 The documentation is available within the `docs` folder. View it online on GitHub to see the rendered markdown.
