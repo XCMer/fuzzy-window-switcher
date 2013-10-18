@@ -52,6 +52,7 @@ class WindowList():
             # Filter out extraneous windows
             name = i.get_name()
             window_type = i.get_window_type()
+            class_group = i.get_class_group_name()
 
             if self.isWindowAlwaysShown(name):
                 pass
@@ -62,7 +63,12 @@ class WindowList():
                 if self.isWindowIgnored(name):
                     continue
 
-            self.windowList.append({'name': name, 'icon': i.get_icon(), 'window': i, 'rank': 0})
+            self.windowList.append({
+                'name': name,
+                'icon': i.get_icon(),
+                'class_group': class_group,
+                'window': i, 'rank': 0
+            })
 
     def getLatest(self):
         self.refresh()
@@ -78,9 +84,11 @@ class WindowList():
         return None
 
     def rank(self, text):
-        self.fuzzyMatcher.setPattern(text)
+        self.fuzzyMatcher.setPattern(text.lower())
         for i in self.windowList:
-            i['rank'] = self.fuzzyMatcher.score(i['name'].lower())
+            score = self.fuzzyMatcher.score(i['name'].lower())
+            score += self.fuzzyMatcher.score(i['class_group'].lower())
+            i['rank'] = score
 
         self.windowList.sort(key=lambda x: x['rank'], reverse=True)
 
