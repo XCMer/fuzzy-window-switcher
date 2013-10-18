@@ -7,7 +7,7 @@ from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder, Gdk, GdkX11
 import re
 import ConfigParser
 import os
-
+import signal
 
 class FuzzyMatcher():
 
@@ -318,6 +318,8 @@ class Config:
 
         return ignored_window_types
 
+# Catch SIGINT signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 # Load the configuration with defaults
 config = Config()
