@@ -1,11 +1,15 @@
 #!/usr/bin/python
+from __future__ import print_function
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
 
 from gi.repository import Gtk, GdkPixbuf, Wnck, Keybinder, Gdk, GdkX11
 import re
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    import configparser
 import os
 import signal
 
@@ -252,7 +256,10 @@ class FuzzyWindow(Gtk.Window):
 class Config:
 
     def __init__(self):
-        self.config = ConfigParser.ConfigParser()
+        try:
+            self.config = ConfigParser.ConfigParser()
+        except NameError:
+            self.config = configparser.ConfigParser()
         self.config.read([
             os.path.expanduser('~/.config/fuzzy-windows.conf'),
             os.path.expanduser('~/.config/.fuzzy-windows'),
@@ -335,7 +342,7 @@ win.set_decorated(False)
 # Set the hotkey
 Keybinder.init()
 if not Keybinder.bind(config.hotkey, win.hotkey, None):
-    print "Could not bind the hotkey:", config.hotkey
+    print("Could not bind the hotkey:", config.hotkey)
     exit()
 
 # The main loop
